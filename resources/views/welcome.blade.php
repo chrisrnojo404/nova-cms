@@ -31,6 +31,8 @@
                         </a>
                     </div>
                 </div>
+
+                <x-developer-credit light class="mt-16 w-full max-w-4xl self-start" />
             </main>
         </div>
     </body>

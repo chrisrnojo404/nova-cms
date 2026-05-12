@@ -25,6 +25,8 @@
             <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white dark:bg-gray-800 shadow-md overflow-hidden sm:rounded-lg">
                 {{ $slot }}
             </div>
+
+            <x-developer-credit class="mt-6 w-full max-w-md rounded-b-2xl bg-white/70 backdrop-blur dark:bg-slate-900/70" />
         </div>
     </body>
 </html>
