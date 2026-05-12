@@ -1,0 +1,3 @@
+window.Nova = {
+    ready: true,
+};

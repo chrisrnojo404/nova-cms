@@ -1,0 +1,7 @@
+{
+  "name": "Contact Form",
+  "version": "1.0.0",
+  "author": "CRN CMS",
+  "description": "Example contact form plugin scaffold for Nova CMS.",
+  "shortcodes": ["contact_form"]
+}
