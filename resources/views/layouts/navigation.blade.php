@@ -1,17 +1,17 @@
 @php
     $items = [
-        ['label' => 'Dashboard', 'route' => 'admin.dashboard'],
-        ['label' => 'Pages', 'route' => 'admin.pages.index'],
-        ['label' => 'Posts', 'route' => 'admin.posts.index'],
-        ['label' => 'Categories', 'route' => 'admin.categories.index'],
-        ['label' => 'Media', 'route' => 'admin.media.index'],
-        ['label' => 'Menus', 'route' => 'admin.menus.index'],
-        ['label' => 'Themes', 'route' => 'admin.themes.index'],
-        ['label' => 'Plugins', 'route' => 'admin.plugins.index'],
-        ['label' => 'Users', 'route' => 'admin.users.index'],
-        ['label' => 'Settings', 'route' => 'admin.settings.index'],
-        ['label' => 'SEO', 'route' => 'admin.seo.index'],
-        ['label' => 'Logs', 'route' => 'admin.logs.index'],
+        ['label' => 'Dashboard', 'route' => 'admin.dashboard', 'pattern' => 'admin.dashboard'],
+        ['label' => 'Pages', 'route' => 'admin.pages.index', 'pattern' => 'admin.pages.*'],
+        ['label' => 'Posts', 'route' => 'admin.posts.index', 'pattern' => 'admin.posts.*'],
+        ['label' => 'Categories', 'route' => 'admin.categories.index', 'pattern' => 'admin.categories.*'],
+        ['label' => 'Media', 'route' => 'admin.media.index', 'pattern' => 'admin.media.*'],
+        ['label' => 'Menus', 'route' => 'admin.menus.index', 'pattern' => 'admin.menus.*'],
+        ['label' => 'Themes', 'route' => 'admin.themes.index', 'pattern' => 'admin.themes.*'],
+        ['label' => 'Plugins', 'route' => 'admin.plugins.index', 'pattern' => 'admin.plugins.*'],
+        ['label' => 'Users', 'route' => 'admin.users.index', 'pattern' => 'admin.users.*'],
+        ['label' => 'Settings', 'route' => 'admin.settings.index', 'pattern' => 'admin.settings.*'],
+        ['label' => 'SEO', 'route' => 'admin.seo.index', 'pattern' => 'admin.seo.*'],
+        ['label' => 'Logs', 'route' => 'admin.logs.index', 'pattern' => 'admin.logs.*'],
     ];
 @endphp
 
@@ -59,7 +59,7 @@
             <p class="px-3 text-xs font-semibold uppercase tracking-[0.24em] text-slate-400 dark:text-slate-500">Workspace</p>
             <div class="mt-3 space-y-1">
                 @foreach ($items as $item)
-                    @php $active = request()->routeIs($item['route']); @endphp
+                    @php $active = request()->routeIs($item['pattern']); @endphp
                     <a
                         href="{{ route($item['route']) }}"
                         class="{{ $active ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/10 dark:bg-cyan-400 dark:text-slate-950' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-white' }} flex items-center rounded-2xl px-3 py-2.5 text-sm font-medium transition"
