@@ -12,12 +12,28 @@ use App\Models\Plugin;
 use App\Models\Setting;
 use App\Models\Theme;
 use App\Models\User;
+use App\Support\PluginManager;
 use Illuminate\Contracts\View\View;
 
 class DashboardController extends Controller
 {
+    public function __construct(private readonly PluginManager $pluginManager)
+    {
+    }
+
     public function __invoke(): View
     {
+        $quickActions = [
+            ['label' => 'Create a new page', 'route' => 'admin.pages.create'],
+            ['label' => 'Write a new post', 'route' => 'admin.posts.create'],
+            ['label' => 'Review all pages', 'route' => 'admin.pages.index'],
+            ['label' => 'Manage categories', 'route' => 'admin.categories.index'],
+            ['label' => 'Open media library', 'route' => 'admin.media.index'],
+            ['label' => 'Build navigation menus', 'route' => 'admin.menus.index'],
+            ['label' => 'Manage plugins', 'route' => 'admin.plugins.index'],
+            ['label' => 'Manage your profile', 'route' => 'profile.edit'],
+        ];
+
         return view('dashboard', [
             'stats' => [
                 ['label' => 'Users', 'value' => User::count(), 'hint' => 'Registered accounts'],
@@ -29,15 +45,7 @@ class DashboardController extends Controller
                 ['label' => 'Plugins', 'value' => Plugin::count(), 'hint' => 'Plugin registry entries'],
             ],
             'recentActivity' => ActivityLog::with('user')->latest()->limit(8)->get(),
-            'quickActions' => [
-                ['label' => 'Create a new page', 'route' => 'admin.pages.create'],
-                ['label' => 'Write a new post', 'route' => 'admin.posts.create'],
-                ['label' => 'Review all pages', 'route' => 'admin.pages.index'],
-                ['label' => 'Manage categories', 'route' => 'admin.categories.index'],
-                ['label' => 'Open media library', 'route' => 'admin.media.index'],
-                ['label' => 'Build navigation menus', 'route' => 'admin.menus.index'],
-                ['label' => 'Manage your profile', 'route' => 'profile.edit'],
-            ],
+            'quickActions' => $this->pluginManager->runHook('dashboard.quick-actions', $quickActions),
             'settingsCount' => Setting::count(),
         ]);
     }

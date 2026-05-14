@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Admin\MediaController as AdminMediaController;
 use App\Http\Controllers\Admin\MenuController as AdminMenuController;
 use App\Http\Controllers\Admin\MenuItemController as AdminMenuItemController;
+use App\Http\Controllers\Admin\PluginController as AdminPluginController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Admin\ThemeController as AdminThemeController;
 use App\Http\Controllers\HomeController;
@@ -69,10 +70,9 @@ Route::middleware(['auth', 'verified', 'panel.access'])
         Route::get('/themes', [AdminThemeController::class, 'index'])->name('themes.index');
         Route::post('/themes/{theme}/activate', [AdminThemeController::class, 'activate'])->name('themes.activate');
 
-        Route::view('/plugins', 'admin.placeholder', [
-            'title' => 'Plugins',
-            'description' => 'The plugin lifecycle, hooks, and widgets are prepared structurally and land in Phase 5.',
-        ])->name('plugins.index');
+        Route::get('/plugins', [AdminPluginController::class, 'index'])->name('plugins.index');
+        Route::post('/plugins/{plugin}/activate', [AdminPluginController::class, 'activate'])->name('plugins.activate');
+        Route::post('/plugins/{plugin}/deactivate', [AdminPluginController::class, 'deactivate'])->name('plugins.deactivate');
 
         Route::view('/users', 'admin.placeholder', [
             'title' => 'Users',

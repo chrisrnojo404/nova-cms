@@ -13,6 +13,8 @@
         ['label' => 'SEO', 'route' => 'admin.seo.index', 'pattern' => 'admin.seo.*'],
         ['label' => 'Logs', 'route' => 'admin.logs.index', 'pattern' => 'admin.logs.*'],
     ];
+
+    $items = array_merge($items, $pluginNavigationItems ?? []);
 @endphp
 
 <nav x-data="{ open: false }">
@@ -60,12 +62,14 @@
             <div class="mt-3 space-y-1">
                 @foreach ($items as $item)
                     @php $active = request()->routeIs($item['pattern']); @endphp
-                    <a
-                        href="{{ route($item['route']) }}"
-                        class="{{ $active ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/10 dark:bg-cyan-400 dark:text-slate-950' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-white' }} flex items-center rounded-2xl px-3 py-2.5 text-sm font-medium transition"
-                    >
-                        {{ $item['label'] }}
-                    </a>
+                    @if (Route::has($item['route']))
+                        <a
+                            href="{{ route($item['route']) }}"
+                            class="{{ $active ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/10 dark:bg-cyan-400 dark:text-slate-950' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-white' }} flex items-center rounded-2xl px-3 py-2.5 text-sm font-medium transition"
+                        >
+                            {{ $item['label'] }}
+                        </a>
+                    @endif
                 @endforeach
             </div>
         </div>

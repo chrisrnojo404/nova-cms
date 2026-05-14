@@ -49,9 +49,11 @@
                     <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Quick actions</p>
                     <div class="mt-5 grid gap-3">
                         @foreach ($quickActions as $action)
-                            <a href="{{ route($action['route']) }}" class="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-cyan-400 hover:text-cyan-700 dark:border-slate-800 dark:text-slate-200 dark:hover:border-cyan-500 dark:hover:text-cyan-300">
-                                {{ $action['label'] }}
-                            </a>
+                            @if (Route::has($action['route']))
+                                <a href="{{ route($action['route']) }}" class="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-cyan-400 hover:text-cyan-700 dark:border-slate-800 dark:text-slate-200 dark:hover:border-cyan-500 dark:hover:text-cyan-300">
+                                    {{ $action['label'] }}
+                                </a>
+                            @endif
                         @endforeach
                     </div>
                 </article>

@@ -62,9 +62,9 @@ class CmsBootstrapSeeder extends Seeder
                 'name' => 'Contact Form',
                 'version' => '1.0.0',
                 'author' => 'CRN CMS',
-                'description' => 'Example plugin scaffold for future shortcode and widget support.',
+                'description' => 'Example plugin that demonstrates shortcode rendering and plugin-owned routes.',
                 'path' => 'plugins/contact-form',
-                'is_active' => false,
+                'is_active' => true,
                 'meta' => ['shortcodes' => ['contact_form']],
             ]
         );
@@ -74,7 +74,7 @@ class CmsBootstrapSeeder extends Seeder
             [
                 'author_id' => $admin->id,
                 'title' => 'About Nova CMS',
-                'content' => '<p>Nova CMS is a modular Laravel content platform focused on scalable publishing workflows, extensible architecture, and a polished admin experience.</p><p>Phase 2 begins with structured page management so teams can create, edit, publish, and render website content end to end.</p>',
+                'content' => '<p>Nova CMS is a modular Laravel content platform focused on scalable publishing workflows, extensible architecture, and a polished admin experience.</p><p>Phase 2 begins with structured page management so teams can create, edit, publish, and render website content end to end.</p><p>Phase 5 introduces plugin rendering foundations, including shortcode support.</p>[contact_form]',
                 'status' => 'published',
                 'template' => 'default',
                 'meta_title' => 'About Nova CMS',

@@ -6,6 +6,7 @@ use App\Models\ActivityLog;
 use App\Models\Menu;
 use App\Models\Setting;
 use App\Models\User;
+use App\Support\PluginManager;
 use App\Support\ThemeManager;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
@@ -22,6 +23,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(ThemeManager::class, fn ($app) => new ThemeManager($app['view']));
+        $this->app->singleton(PluginManager::class, fn ($app) => new PluginManager($app['view']));
     }
 
     /**
@@ -30,6 +32,12 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->app->make(ThemeManager::class)->registerActiveThemeNamespace();
+        $pluginManager = $this->app->make(PluginManager::class);
+        $pluginManager->registerDiscoveredPluginNamespaces();
+        $pluginManager->syncDiscoveredPlugins();
+        $pluginManager->registerActivePluginRoutes();
+        $pluginManager->loadActivePluginBootstraps();
+        $pluginManager->registerDefaultShortcodes();
 
         View::composer(['welcome', 'pages.*', 'posts.*', 'theme::*'], function ($view): void {
             $defaults = [
@@ -92,6 +100,14 @@ class AppServiceProvider extends ServiceProvider
                     ])
                     ->first(),
                 'siteSettings' => $siteSettings,
+            ]);
+        });
+
+        View::composer('layouts.navigation', function ($view) use ($pluginManager): void {
+            $pluginItems = $pluginManager->runHook('admin.navigation.items', $pluginManager->adminNavigationItems());
+
+            $view->with([
+                'pluginNavigationItems' => is_array($pluginItems) ? $pluginItems : [],
             ]);
         });
 

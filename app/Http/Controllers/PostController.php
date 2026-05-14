@@ -5,12 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Post;
 use App\Models\Setting;
+use App\Support\PluginManager;
 use App\Support\ThemeManager;
 use Illuminate\Contracts\View\View;
 
 class PostController extends Controller
 {
-    public function __construct(private readonly ThemeManager $themeManager)
+    public function __construct(
+        private readonly ThemeManager $themeManager,
+        private readonly PluginManager $pluginManager
+    )
     {
     }
 
@@ -34,6 +38,8 @@ class PostController extends Controller
             ->published()
             ->where('slug', $slug)
             ->firstOrFail();
+
+        $post->content = $this->pluginManager->renderContent($post->content);
 
         return $this->themeManager->themedView('posts.show', compact('post'), 'posts.show');
     }
