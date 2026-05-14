@@ -1,6 +1,6 @@
 @php
-    $title = ($siteSettings['site_name'] ?? 'Nova CMS').' Preview';
-    $description = $siteSettings['site_tagline'] ?? 'Commercial-ready Laravel CMS foundation';
+    $title = $title ?? (($siteSettings['site_name'] ?? 'Nova CMS').' Preview');
+    $description = $description ?? ($siteSettings['site_tagline'] ?? 'Commercial-ready Laravel CMS foundation');
 @endphp
 
 @extends('theme::layouts.app')

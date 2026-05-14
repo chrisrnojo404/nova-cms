@@ -1,5 +1,5 @@
 @php
-    $title = ($siteSettings['site_name'] ?? 'Nova CMS').' Blog';
+    $title = $title ?? (($siteSettings['site_name'] ?? 'Nova CMS').' Blog');
 @endphp
 
 @extends('theme::layouts.app')

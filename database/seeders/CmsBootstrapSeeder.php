@@ -41,6 +41,14 @@ class CmsBootstrapSeeder extends Seeder
             ['group' => 'reading', 'key' => 'posts_per_page', 'value' => ['value' => 9], 'is_public' => true, 'autoload' => true],
             ['group' => 'media', 'key' => 'media_upload_directory', 'value' => ['value' => 'media/uploads'], 'is_public' => false, 'autoload' => true],
             ['group' => 'media', 'key' => 'image_quality', 'value' => ['value' => 82], 'is_public' => false, 'autoload' => true],
+            ['group' => 'seo', 'key' => 'meta_title_template', 'value' => ['value' => '{title} | {site_name}'], 'is_public' => true, 'autoload' => true],
+            ['group' => 'seo', 'key' => 'default_meta_description', 'value' => ['value' => 'Commercial-ready Laravel CMS foundation'], 'is_public' => true, 'autoload' => true],
+            ['group' => 'seo', 'key' => 'meta_robots', 'value' => ['value' => 'index,follow'], 'is_public' => true, 'autoload' => true],
+            ['group' => 'seo', 'key' => 'canonical_base_url', 'value' => ['value' => config('app.url')], 'is_public' => true, 'autoload' => true],
+            ['group' => 'seo', 'key' => 'og_site_name', 'value' => ['value' => 'Nova CMS'], 'is_public' => true, 'autoload' => true],
+            ['group' => 'seo', 'key' => 'twitter_card', 'value' => ['value' => 'summary_large_image'], 'is_public' => true, 'autoload' => true],
+            ['group' => 'seo', 'key' => 'robots_txt_content', 'value' => ['value' => null], 'is_public' => false, 'autoload' => true],
+            ['group' => 'seo', 'key' => 'sitemap_enabled', 'value' => ['value' => true], 'is_public' => true, 'autoload' => true],
         ]);
 
         Theme::updateOrCreate(

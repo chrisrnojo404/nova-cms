@@ -3,9 +3,31 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>{{ $title ?? ($siteSettings['site_name'] ?? 'Nova CMS') }}</title>
-        @if (! empty($description))
-            <meta name="description" content="{{ $description }}">
+        @php
+            $seoTitle = $title ?? ($siteSettings['site_name'] ?? 'Nova CMS');
+            $seoDescription = $description ?: ($seoSettings['default_meta_description'] ?? ($siteSettings['site_tagline'] ?? 'Commercial-ready Laravel CMS foundation'));
+            $seoCanonical = $canonical ?? request()->url();
+            $seoRobots = $robots ?? ($seoSettings['meta_robots'] ?? 'index,follow');
+            $seoOgImage = $ogImage ?? null;
+            $seoOgType = $ogType ?? (request()->routeIs('posts.show', 'pages.show') ? 'article' : 'website');
+        @endphp
+        <title>{{ $seoTitle }}</title>
+        @if (! empty($seoDescription))
+            <meta name="description" content="{{ $seoDescription }}">
+        @endif
+        <meta name="robots" content="{{ $seoRobots }}">
+        <link rel="canonical" href="{{ $seoCanonical }}">
+        <meta property="og:title" content="{{ $seoTitle }}">
+        <meta property="og:description" content="{{ $seoDescription }}">
+        <meta property="og:type" content="{{ $seoOgType }}">
+        <meta property="og:url" content="{{ $seoCanonical }}">
+        <meta property="og:site_name" content="{{ $seoSettings['og_site_name'] ?? ($siteSettings['site_name'] ?? 'Nova CMS') }}">
+        <meta name="twitter:card" content="{{ $seoSettings['twitter_card'] ?? 'summary_large_image' }}">
+        <meta name="twitter:title" content="{{ $seoTitle }}">
+        <meta name="twitter:description" content="{{ $seoDescription }}">
+        @if ($seoOgImage)
+            <meta property="og:image" content="{{ $seoOgImage }}">
+            <meta name="twitter:image" content="{{ $seoOgImage }}">
         @endif
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>

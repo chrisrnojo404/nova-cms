@@ -1,6 +1,6 @@
 @php
-    $title = $category->meta_title ?: $category->name;
-    $description = $category->meta_description ?: $category->description;
+    $title = $title ?? ($category->meta_title ?: $category->name);
+    $description = $description ?? ($category->meta_description ?: $category->description);
 @endphp
 
 @extends('theme::layouts.app')

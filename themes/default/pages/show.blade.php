@@ -1,6 +1,6 @@
 @php
-    $title = $page->meta_title ?: $page->title;
-    $description = $page->meta_description ?: \Illuminate\Support\Str::limit(strip_tags($page->content ?? ''), 155);
+    $title = $title ?? ($page->meta_title ?: $page->title);
+    $description = $description ?? ($page->meta_description ?: \Illuminate\Support\Str::limit(strip_tags($page->content ?? ''), 155));
 @endphp
 
 @extends('theme::layouts.app')

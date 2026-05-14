@@ -7,10 +7,14 @@ use App\Models\Menu;
 use App\Models\Setting;
 use App\Models\User;
 use App\Support\PluginManager;
+use App\Support\SeoManager;
 use App\Support\ThemeManager;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
@@ -24,6 +28,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton(ThemeManager::class, fn ($app) => new ThemeManager($app['view']));
         $this->app->singleton(PluginManager::class, fn ($app) => new PluginManager($app['view']));
+        $this->app->singleton(SeoManager::class, fn () => new SeoManager());
     }
 
     /**
@@ -31,6 +36,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        RateLimiter::for('api', function (Request $request): Limit {
+            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+        });
+
         $this->app->make(ThemeManager::class)->registerActiveThemeNamespace();
         $pluginManager = $this->app->make(PluginManager::class);
         $pluginManager->registerDiscoveredPluginNamespaces();
@@ -66,6 +75,8 @@ class AppServiceProvider extends ServiceProvider
                 ])
                 : $defaults;
 
+            $seoSettings = $this->app->make(SeoManager::class)->settings();
+
             $view->with([
                 'headerMenu' => Menu::query()
                     ->active()
@@ -100,6 +111,7 @@ class AppServiceProvider extends ServiceProvider
                     ])
                     ->first(),
                 'siteSettings' => $siteSettings,
+                'seoSettings' => $seoSettings,
             ]);
         });
 

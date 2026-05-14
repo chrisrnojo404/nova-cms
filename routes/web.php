@@ -8,12 +8,14 @@ use App\Http\Controllers\Admin\MediaController as AdminMediaController;
 use App\Http\Controllers\Admin\MenuController as AdminMenuController;
 use App\Http\Controllers\Admin\MenuItemController as AdminMenuItemController;
 use App\Http\Controllers\Admin\PluginController as AdminPluginController;
+use App\Http\Controllers\Admin\SeoController as AdminSeoController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Admin\ThemeController as AdminThemeController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\SeoController as PublicSeoController;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Route;
 
@@ -24,6 +26,8 @@ Route::get('/dashboard', function (): RedirectResponse {
 })->middleware(['auth', 'verified', 'panel.access'])->name('dashboard');
 
 Route::view('/preview', 'welcome');
+Route::get('/sitemap.xml', [PublicSeoController::class, 'sitemap'])->name('seo.sitemap');
+Route::get('/robots.txt', [PublicSeoController::class, 'robots'])->name('seo.robots');
 
 Route::middleware(['auth', 'verified', 'panel.access'])
     ->prefix('admin')
@@ -82,10 +86,8 @@ Route::middleware(['auth', 'verified', 'panel.access'])
         Route::get('/settings', [AdminSettingController::class, 'index'])->name('settings.index');
         Route::put('/settings', [AdminSettingController::class, 'update'])->name('settings.update');
 
-        Route::view('/seo', 'admin.placeholder', [
-            'title' => 'SEO',
-            'description' => 'Meta management, sitemaps, robots, and canonical handling are scheduled for Phase 6.',
-        ])->name('seo.index');
+        Route::get('/seo', [AdminSeoController::class, 'index'])->name('seo.index');
+        Route::put('/seo', [AdminSeoController::class, 'update'])->name('seo.update');
 
         Route::view('/logs', 'admin.placeholder', [
             'title' => 'Activity Logs',

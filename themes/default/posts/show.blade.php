@@ -1,6 +1,6 @@
 @php
-    $title = $post->meta_title ?: $post->title;
-    $description = $post->meta_description ?: $post->excerpt;
+    $title = $title ?? ($post->meta_title ?: $post->title);
+    $description = $description ?? ($post->meta_description ?: $post->excerpt);
 @endphp
 
 @extends('theme::layouts.app')
