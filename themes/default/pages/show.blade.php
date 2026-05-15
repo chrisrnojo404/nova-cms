@@ -21,7 +21,13 @@
             @endif
 
             <div class="prose prose-slate mt-10 max-w-none prose-headings:text-slate-900 prose-p:text-slate-700 dark:prose-invert dark:prose-p:text-slate-300">
-                {!! $page->content !!}
+                @if (! empty($page->blocks))
+                    @include('theme::partials.blocks', ['blocks' => $page->blocks])
+                @endif
+
+                @if (empty($page->blocks) || ($renderRichContent ?? false))
+                    {!! $page->content !!}
+                @endif
             </div>
         </div>
     </article>

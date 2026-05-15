@@ -22,10 +22,20 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('admin.pages.update', $page) }}" class="space-y-6">
+        <form
+            method="POST"
+            action="{{ route('admin.pages.update', $page) }}"
+            class="space-y-6"
+            x-data='draftSnapshot({ key: @js($draftAutosaveKey), fields: ["title","slug","content","status","template","featured_image","meta_title","meta_description","builder_blocks"] })'
+        >
             @csrf
             @method('PUT')
             @include('admin.pages.partials.form', ['submitLabel' => 'Save changes'])
         </form>
+
+        @include('admin.partials.revision-history', [
+            'revisions' => $revisions,
+            'restoreRoute' => fn ($revision) => route('admin.pages.revisions.restore', [$page, $revision]),
+        ])
     </div>
 </x-app-layout>

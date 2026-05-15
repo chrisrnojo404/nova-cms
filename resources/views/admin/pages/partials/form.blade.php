@@ -39,6 +39,8 @@
                 </div>
             </div>
         </div>
+
+        @include('admin.partials.builder-foundation')
     </section>
 
     <aside class="space-y-6">
@@ -68,12 +70,9 @@
             </div>
         </div>
 
-        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <p class="text-sm font-semibold text-slate-900 dark:text-white">Page builder foundation</p>
-            <p class="mt-3 text-sm leading-7 text-slate-500 dark:text-slate-400">
-                Each save also updates a starter block JSON structure behind the scenes so this module is compatible with the future drag-and-drop page builder.
-            </p>
-        </div>
+        @include('admin.partials.featured-image-picker')
+
+        @include('admin.partials.draft-snapshot-panel')
 
         <div class="flex flex-wrap gap-3">
             <button type="submit" class="inline-flex items-center justify-center rounded-full bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300">

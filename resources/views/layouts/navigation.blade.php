@@ -5,6 +5,7 @@
         ['label' => 'Posts', 'route' => 'admin.posts.index', 'pattern' => 'admin.posts.*'],
         ['label' => 'Categories', 'route' => 'admin.categories.index', 'pattern' => 'admin.categories.*'],
         ['label' => 'Media', 'route' => 'admin.media.index', 'pattern' => 'admin.media.*'],
+        ['label' => 'Builder Templates', 'route' => 'admin.block-templates.index', 'pattern' => 'admin.block-templates.*'],
         ['label' => 'Menus', 'route' => 'admin.menus.index', 'pattern' => 'admin.menus.*'],
         ['label' => 'Themes', 'route' => 'admin.themes.index', 'pattern' => 'admin.themes.*'],
         ['label' => 'Plugins', 'route' => 'admin.plugins.index', 'pattern' => 'admin.plugins.*'],

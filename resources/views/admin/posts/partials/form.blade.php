@@ -45,6 +45,8 @@
                 </div>
             </div>
         </div>
+
+        @include('admin.partials.builder-foundation')
     </section>
 
     <aside class="space-y-6">
@@ -87,6 +89,10 @@
                 Published posts will automatically appear in the `/blog` listing and on their selected category pages.
             </p>
         </div>
+
+        @include('admin.partials.featured-image-picker')
+
+        @include('admin.partials.draft-snapshot-panel')
 
         <div class="flex flex-wrap gap-3">
             <button type="submit" class="inline-flex items-center justify-center rounded-full bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300">

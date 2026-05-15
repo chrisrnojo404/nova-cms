@@ -8,12 +8,18 @@ use App\Http\Requests\Admin\PageUpdateRequest;
 use App\Http\Resources\Api\V1\PageResource;
 use App\Models\ActivityLog;
 use App\Models\Page;
+use App\Support\BlockBuilder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Arr;
 
 class PageController extends Controller
 {
+    public function __construct(private readonly BlockBuilder $blockBuilder)
+    {
+    }
+
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = Page::query()
@@ -56,10 +62,15 @@ class PageController extends Controller
 
     public function store(PageStoreRequest $request): JsonResponse
     {
+        $fallbackBlocks = $this->blockBuilder->fallbackPageBlocks(
+            $request->string('title')->toString(),
+            $request->input('content')
+        );
+
         $page = Page::create([
-            ...$request->validated(),
+            ...Arr::except($request->validated(), ['builder_blocks']),
             'author_id' => $request->user()->id,
-            'blocks' => $this->buildBlocks($request->string('title')->toString(), $request->input('content')),
+            'blocks' => $this->resolveBlocks($request->input('builder_blocks'), $fallbackBlocks),
             'published_at' => $request->input('status') === 'published' ? now() : null,
         ]);
 
@@ -73,10 +84,14 @@ class PageController extends Controller
     public function update(PageUpdateRequest $request, Page $page): PageResource
     {
         $status = $request->input('status');
+        $fallbackBlocks = $this->blockBuilder->fallbackPageBlocks(
+            $request->string('title')->toString(),
+            $request->input('content')
+        );
 
         $page->update([
-            ...$request->validated(),
-            'blocks' => $this->buildBlocks($request->string('title')->toString(), $request->input('content')),
+            ...Arr::except($request->validated(), ['builder_blocks']),
+            'blocks' => $this->resolveBlocks($request->input('builder_blocks'), $fallbackBlocks),
             'published_at' => $status === 'published'
                 ? ($page->published_at ?? now())
                 : null,
@@ -99,12 +114,11 @@ class PageController extends Controller
         ]);
     }
 
-    private function buildBlocks(string $title, ?string $content): array
+    private function resolveBlocks(?string $rawBlocks, array $fallback): array
     {
-        return array_values(array_filter([
-            ['type' => 'heading', 'content' => $title],
-            $content ? ['type' => 'paragraph', 'content' => strip_tags($content)] : null,
-        ]));
+        $blocks = $this->blockBuilder->normalize($this->blockBuilder->decode($rawBlocks));
+
+        return $blocks === [] ? $fallback : $blocks;
     }
 
     private function perPage(Request $request): int

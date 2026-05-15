@@ -2,12 +2,15 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Http\Requests\Admin\Concerns\InteractsWithBuilderBlocks;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class PostStoreRequest extends FormRequest
 {
+    use InteractsWithBuilderBlocks;
+
     public function authorize(): bool
     {
         return $this->user()?->can('manage posts') ?? false;
@@ -25,7 +28,13 @@ class PostStoreRequest extends FormRequest
             'featured_image' => ['nullable', 'string', 'max:255'],
             'meta_title' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string', 'max:500'],
+            'builder_blocks' => ['nullable', 'string'],
         ];
+    }
+
+    public function withValidator($validator): void
+    {
+        $validator->after(fn ($validator) => $this->validateBuilderBlocks($validator));
     }
 
     protected function prepareForValidation(): void

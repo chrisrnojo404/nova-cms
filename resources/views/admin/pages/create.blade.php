@@ -7,7 +7,12 @@
         </div>
     </x-slot>
 
-    <form method="POST" action="{{ route('admin.pages.store') }}" class="space-y-6">
+    <form
+        method="POST"
+        action="{{ route('admin.pages.store') }}"
+        class="space-y-6"
+        x-data='draftSnapshot({ key: @js($draftAutosaveKey), fields: ["title","slug","content","status","template","featured_image","meta_title","meta_description","builder_blocks"] })'
+    >
         @csrf
         @include('admin.pages.partials.form', ['submitLabel' => 'Create page'])
     </form>

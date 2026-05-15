@@ -8,12 +8,18 @@ use App\Http\Requests\Admin\PostUpdateRequest;
 use App\Http\Resources\Api\V1\PostResource;
 use App\Models\ActivityLog;
 use App\Models\Post;
+use App\Support\BlockBuilder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Arr;
 
 class PostController extends Controller
 {
+    public function __construct(private readonly BlockBuilder $blockBuilder)
+    {
+    }
+
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = Post::query()
@@ -65,14 +71,16 @@ class PostController extends Controller
 
     public function store(PostStoreRequest $request): JsonResponse
     {
+        $fallbackBlocks = $this->blockBuilder->fallbackPostBlocks(
+            $request->string('title')->toString(),
+            $request->input('excerpt'),
+            $request->input('content')
+        );
+
         $post = Post::create([
-            ...$request->validated(),
+            ...Arr::except($request->validated(), ['builder_blocks']),
             'author_id' => $request->user()->id,
-            'blocks' => $this->buildBlocks(
-                $request->string('title')->toString(),
-                $request->input('excerpt'),
-                $request->input('content')
-            ),
+            'blocks' => $this->resolveBlocks($request->input('builder_blocks'), $fallbackBlocks),
             'published_at' => $request->input('status') === 'published' ? now() : null,
         ]);
 
@@ -86,14 +94,15 @@ class PostController extends Controller
     public function update(PostUpdateRequest $request, Post $post): PostResource
     {
         $status = $request->input('status');
+        $fallbackBlocks = $this->blockBuilder->fallbackPostBlocks(
+            $request->string('title')->toString(),
+            $request->input('excerpt'),
+            $request->input('content')
+        );
 
         $post->update([
-            ...$request->validated(),
-            'blocks' => $this->buildBlocks(
-                $request->string('title')->toString(),
-                $request->input('excerpt'),
-                $request->input('content')
-            ),
+            ...Arr::except($request->validated(), ['builder_blocks']),
+            'blocks' => $this->resolveBlocks($request->input('builder_blocks'), $fallbackBlocks),
             'published_at' => $status === 'published'
                 ? ($post->published_at ?? now())
                 : null,
@@ -116,13 +125,11 @@ class PostController extends Controller
         ]);
     }
 
-    private function buildBlocks(string $title, ?string $excerpt, ?string $content): array
+    private function resolveBlocks(?string $rawBlocks, array $fallback): array
     {
-        return array_values(array_filter([
-            ['type' => 'heading', 'content' => $title],
-            $excerpt ? ['type' => 'paragraph', 'content' => $excerpt] : null,
-            $content ? ['type' => 'paragraph', 'content' => strip_tags($content)] : null,
-        ]));
+        $blocks = $this->blockBuilder->normalize($this->blockBuilder->decode($rawBlocks));
+
+        return $blocks === [] ? $fallback : $blocks;
     }
 
     private function perPage(Request $request): int

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\BlockTemplateController as AdminBlockTemplateController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\PageController as AdminPageController;
 use App\Http\Controllers\Admin\PostController as AdminPostController;
@@ -41,6 +42,7 @@ Route::middleware(['auth', 'verified', 'panel.access'])
         Route::get('/pages/{page}/edit', [AdminPageController::class, 'edit'])->name('pages.edit');
         Route::put('/pages/{page}', [AdminPageController::class, 'update'])->name('pages.update');
         Route::delete('/pages/{page}', [AdminPageController::class, 'destroy'])->name('pages.destroy');
+        Route::post('/pages/{page}/revisions/{revision}/restore', [AdminPageController::class, 'restoreRevision'])->name('pages.revisions.restore');
 
         Route::get('/posts', [AdminPostController::class, 'index'])->name('posts.index');
         Route::get('/posts/create', [AdminPostController::class, 'create'])->name('posts.create');
@@ -48,6 +50,7 @@ Route::middleware(['auth', 'verified', 'panel.access'])
         Route::get('/posts/{post}/edit', [AdminPostController::class, 'edit'])->name('posts.edit');
         Route::put('/posts/{post}', [AdminPostController::class, 'update'])->name('posts.update');
         Route::delete('/posts/{post}', [AdminPostController::class, 'destroy'])->name('posts.destroy');
+        Route::post('/posts/{post}/revisions/{revision}/restore', [AdminPostController::class, 'restoreRevision'])->name('posts.revisions.restore');
 
         Route::get('/categories', [AdminCategoryController::class, 'index'])->name('categories.index');
         Route::get('/categories/create', [AdminCategoryController::class, 'create'])->name('categories.create');
@@ -59,6 +62,15 @@ Route::middleware(['auth', 'verified', 'panel.access'])
         Route::get('/media', [AdminMediaController::class, 'index'])->name('media.index');
         Route::post('/media', [AdminMediaController::class, 'store'])->name('media.store');
         Route::delete('/media/{medium}', [AdminMediaController::class, 'destroy'])->name('media.destroy');
+
+        Route::get('/block-templates', [AdminBlockTemplateController::class, 'index'])->name('block-templates.index');
+        Route::get('/block-templates/create', [AdminBlockTemplateController::class, 'create'])->name('block-templates.create');
+        Route::post('/block-templates/import', [AdminBlockTemplateController::class, 'import'])->name('block-templates.import');
+        Route::post('/block-templates', [AdminBlockTemplateController::class, 'store'])->name('block-templates.store');
+        Route::get('/block-templates/{block_template}/export', [AdminBlockTemplateController::class, 'export'])->name('block-templates.export');
+        Route::get('/block-templates/{block_template}/edit', [AdminBlockTemplateController::class, 'edit'])->name('block-templates.edit');
+        Route::put('/block-templates/{block_template}', [AdminBlockTemplateController::class, 'update'])->name('block-templates.update');
+        Route::delete('/block-templates/{block_template}', [AdminBlockTemplateController::class, 'destroy'])->name('block-templates.destroy');
 
         Route::get('/menus', [AdminMenuController::class, 'index'])->name('menus.index');
         Route::get('/menus/create', [AdminMenuController::class, 'create'])->name('menus.create');

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Page;
+use App\Support\BlockBuilder;
 use App\Support\PluginManager;
 use App\Support\SeoManager;
 use App\Support\ThemeManager;
@@ -13,7 +14,8 @@ class PageController extends Controller
     public function __construct(
         private readonly ThemeManager $themeManager,
         private readonly PluginManager $pluginManager,
-        private readonly SeoManager $seoManager
+        private readonly SeoManager $seoManager,
+        private readonly BlockBuilder $blockBuilder
     )
     {
     }
@@ -27,6 +29,13 @@ class PageController extends Controller
             ->firstOrFail();
 
         $page->content = $this->pluginManager->renderContent($page->content);
+        $page->blocks = $this->blockBuilder->renderReady(
+            $this->blockBuilder->stripLeadingMetadataBlocks(
+                $page->blocks ?: $this->blockBuilder->fallbackPageBlocks($page->title, $page->content),
+                $page->title
+            ),
+            fn (string $value): string => $this->pluginManager->renderContent($value)
+        );
 
         return $this->themeManager->themedView('pages.show', [
             'page' => $page,
@@ -34,6 +43,14 @@ class PageController extends Controller
             'description' => $page->meta_description ?: $this->seoManager->settings()['default_meta_description'],
             'ogImage' => $page->featured_image,
             'canonical' => route('pages.show', $page->slug),
+            'renderRichContent' => $this->shouldRenderClassicContent($page->content),
         ], 'pages.show');
+    }
+
+    private function shouldRenderClassicContent(?string $content): bool
+    {
+        $content = (string) $content;
+
+        return $content !== '' && preg_match('/\[[^\]]+\]/', $content) === 1;
     }
 }
