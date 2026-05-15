@@ -12,7 +12,14 @@
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         <script>
-            const storedTheme = localStorage.getItem('nova-theme');
+            let storedTheme = null;
+
+            try {
+                storedTheme = window.localStorage.getItem('nova-theme');
+            } catch (_error) {
+                storedTheme = null;
+            }
+
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             const shouldUseDark = storedTheme ? storedTheme === 'dark' : prefersDark;
 
@@ -37,7 +44,11 @@
                                 @click="
                                     const next = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
                                     document.documentElement.classList.toggle('dark', next === 'dark');
-                                    localStorage.setItem('nova-theme', next);
+                                    try {
+                                        localStorage.setItem('nova-theme', next);
+                                    } catch (_error) {
+                                        // Theme preference still applies for this request even if storage is unavailable.
+                                    }
                                 "
                                 class="inline-flex items-center rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-cyan-400 hover:text-cyan-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-cyan-500 dark:hover:text-cyan-300"
                             >

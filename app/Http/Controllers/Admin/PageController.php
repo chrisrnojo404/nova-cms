@@ -15,6 +15,7 @@ use App\Support\RevisionManager;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Schema;
 
 class PageController extends Controller
 {
@@ -48,7 +49,7 @@ class PageController extends Controller
             'builderLayouts' => $this->blockBuilder->starterLayouts(),
             'builderBlocksJson' => $this->blockBuilder->editorJson([], $fallbackBlocks),
             'builderMediaLibrary' => $this->builderMediaLibrary(),
-            'builderReusableTemplates' => BlockTemplate::query()->forContext('page')->latest()->get(),
+            'builderReusableTemplates' => $this->reusableTemplatesFor('page'),
             'builderAutosaveKey' => 'nova-builder-page-create',
             'featuredImageLibrary' => $this->featuredImageLibrary(),
             'draftAutosaveKey' => 'nova-draft-page-create',
@@ -87,7 +88,7 @@ class PageController extends Controller
             'builderLayouts' => $this->blockBuilder->starterLayouts(),
             'builderBlocksJson' => $this->blockBuilder->editorJson($page->blocks, $fallbackBlocks),
             'builderMediaLibrary' => $this->builderMediaLibrary(),
-            'builderReusableTemplates' => BlockTemplate::query()->forContext('page')->latest()->get(),
+            'builderReusableTemplates' => $this->reusableTemplatesFor('page'),
             'builderAutosaveKey' => 'nova-builder-page-'.$page->id,
             'featuredImageLibrary' => $this->featuredImageLibrary(),
             'draftAutosaveKey' => 'nova-draft-page-'.$page->id,
@@ -201,6 +202,18 @@ class PageController extends Controller
                 'name' => $media->original_name,
             ])
             ->all();
+    }
+
+    private function reusableTemplatesFor(string $context)
+    {
+        if (! Schema::hasTable('block_templates')) {
+            return collect();
+        }
+
+        return BlockTemplate::query()
+            ->forContext($context)
+            ->latest()
+            ->get();
     }
 
     private function logPageActivity(int $userId, Page $page, string $event, string $description): void

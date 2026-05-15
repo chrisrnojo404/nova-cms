@@ -16,6 +16,7 @@ use App\Support\RevisionManager;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Schema;
 
 class PostController extends Controller
 {
@@ -47,7 +48,7 @@ class PostController extends Controller
             'builderLayouts' => $this->blockBuilder->starterLayouts(),
             'builderBlocksJson' => $this->blockBuilder->editorJson([], $fallbackBlocks),
             'builderMediaLibrary' => $this->builderMediaLibrary(),
-            'builderReusableTemplates' => BlockTemplate::query()->forContext('post')->latest()->get(),
+            'builderReusableTemplates' => $this->reusableTemplatesFor('post'),
             'builderAutosaveKey' => 'nova-builder-post-create',
             'featuredImageLibrary' => $this->featuredImageLibrary(),
             'draftAutosaveKey' => 'nova-draft-post-create',
@@ -88,7 +89,7 @@ class PostController extends Controller
             'builderLayouts' => $this->blockBuilder->starterLayouts(),
             'builderBlocksJson' => $this->blockBuilder->editorJson($post->blocks, $fallbackBlocks),
             'builderMediaLibrary' => $this->builderMediaLibrary(),
-            'builderReusableTemplates' => BlockTemplate::query()->forContext('post')->latest()->get(),
+            'builderReusableTemplates' => $this->reusableTemplatesFor('post'),
             'builderAutosaveKey' => 'nova-builder-post-'.$post->id,
             'featuredImageLibrary' => $this->featuredImageLibrary(),
             'draftAutosaveKey' => 'nova-draft-post-'.$post->id,
@@ -204,6 +205,18 @@ class PostController extends Controller
                 'name' => $media->original_name,
             ])
             ->all();
+    }
+
+    private function reusableTemplatesFor(string $context)
+    {
+        if (! Schema::hasTable('block_templates')) {
+            return collect();
+        }
+
+        return BlockTemplate::query()
+            ->forContext($context)
+            ->latest()
+            ->get();
     }
 
     private function logPostActivity(int $userId, Post $post, string $event, string $description): void

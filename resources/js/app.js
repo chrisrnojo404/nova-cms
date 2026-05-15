@@ -4,6 +4,44 @@ import Alpine from 'alpinejs';
 
 window.Alpine = Alpine;
 
+const readFromStorage = (key) => {
+    if (!key) {
+        return null;
+    }
+
+    try {
+        return window.localStorage.getItem(key);
+    } catch (_error) {
+        return null;
+    }
+};
+
+const writeToStorage = (key, value) => {
+    if (!key) {
+        return false;
+    }
+
+    try {
+        window.localStorage.setItem(key, value);
+        return true;
+    } catch (_error) {
+        return false;
+    }
+};
+
+const removeFromStorage = (key) => {
+    if (!key) {
+        return false;
+    }
+
+    try {
+        window.localStorage.removeItem(key);
+        return true;
+    } catch (_error) {
+        return false;
+    }
+};
+
 document.addEventListener('alpine:init', () => {
     Alpine.data('blockEditor', ({ initialJson = '[]', catalog = [], mediaCatalog = [] } = {}) => ({
         catalog,
@@ -22,7 +60,7 @@ document.addEventListener('alpine:init', () => {
 
         configureAutosave(key) {
             this.autosaveKey = key;
-            this.autosaveLabel = localStorage.getItem(key) ? 'Snapshot available' : 'Idle';
+            this.autosaveLabel = readFromStorage(key) ? 'Snapshot available' : 'Idle';
         },
 
         addBlock(type) {
@@ -252,10 +290,9 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
 
-            try {
-                localStorage.setItem(this.autosaveKey, this.rawJson);
+            if (writeToStorage(this.autosaveKey, this.rawJson)) {
                 this.autosaveLabel = `Autosaved ${new Date().toLocaleTimeString()}`;
-            } catch (_error) {
+            } else {
                 this.autosaveLabel = 'Autosave unavailable';
             }
         },
@@ -265,7 +302,7 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
 
-            const snapshot = localStorage.getItem(this.autosaveKey);
+            const snapshot = readFromStorage(this.autosaveKey);
 
             if (!snapshot) {
                 this.autosaveLabel = 'No snapshot found';
@@ -282,8 +319,9 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
 
-            localStorage.removeItem(this.autosaveKey);
-            this.autosaveLabel = 'Snapshot cleared';
+            this.autosaveLabel = removeFromStorage(this.autosaveKey)
+                ? 'Snapshot cleared'
+                : 'Snapshot unavailable';
         },
     }));
 
@@ -293,7 +331,7 @@ document.addEventListener('alpine:init', () => {
         status: 'Idle',
 
         init() {
-            this.status = localStorage.getItem(this.key) ? 'Draft snapshot available' : 'Idle';
+            this.status = readFromStorage(this.key) ? 'Draft snapshot available' : 'Idle';
 
             this.$nextTick(() => {
                 this.fields.forEach((field) => {
@@ -331,8 +369,11 @@ document.addEventListener('alpine:init', () => {
                 payload[field] = input.value;
             });
 
-            localStorage.setItem(this.key, JSON.stringify(payload));
-            this.status = `Draft autosaved ${new Date().toLocaleTimeString()}`;
+            if (writeToStorage(this.key, JSON.stringify(payload))) {
+                this.status = `Draft autosaved ${new Date().toLocaleTimeString()}`;
+            } else {
+                this.status = 'Draft autosave unavailable';
+            }
         },
 
         restore() {
@@ -340,14 +381,21 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
 
-            const raw = localStorage.getItem(this.key);
+            const raw = readFromStorage(this.key);
 
             if (!raw) {
                 this.status = 'No draft snapshot found';
                 return;
             }
 
-            const payload = JSON.parse(raw);
+            let payload = {};
+
+            try {
+                payload = JSON.parse(raw);
+            } catch (_error) {
+                this.status = 'Draft snapshot is unreadable';
+                return;
+            }
 
             this.fields.forEach((field) => {
                 const input = this.$root.querySelector(`[name="${field}"]`);
@@ -375,8 +423,9 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
 
-            localStorage.removeItem(this.key);
-            this.status = 'Draft snapshot cleared';
+            this.status = removeFromStorage(this.key)
+                ? 'Draft snapshot cleared'
+                : 'Draft snapshot unavailable';
         },
     }));
 });
