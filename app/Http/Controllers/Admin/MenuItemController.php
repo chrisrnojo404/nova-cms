@@ -11,13 +11,19 @@ use App\Models\Menu;
 use App\Models\MenuItem;
 use App\Models\Page;
 use App\Models\Post;
+use App\Support\CmsCache;
 use Illuminate\Http\RedirectResponse;
 
 class MenuItemController extends Controller
 {
+    public function __construct(private readonly CmsCache $cache)
+    {
+    }
+
     public function store(MenuItemStoreRequest $request, Menu $menu): RedirectResponse
     {
         $item = $menu->items()->create($this->payload($request->validated()));
+        $this->cache->flushMenus();
 
         $this->logItemActivity($request->user()->id, $item, 'menu_item.created', 'Menu item created.');
 
@@ -31,6 +37,7 @@ class MenuItemController extends Controller
         abort_unless($item->menu_id === $menu->id, 404);
 
         $item->update($this->payload($request->validated()));
+        $this->cache->flushMenus();
 
         $this->logItemActivity($request->user()->id, $item, 'menu_item.updated', 'Menu item updated.');
 
@@ -46,6 +53,7 @@ class MenuItemController extends Controller
         $userId = request()->user()?->id;
         $title = $item->resolved_title;
         $item->delete();
+        $this->cache->flushMenus();
 
         ActivityLog::create([
             'user_id' => $userId,

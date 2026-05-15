@@ -9,6 +9,7 @@
         ['label' => 'Menus', 'route' => 'admin.menus.index', 'pattern' => 'admin.menus.*'],
         ['label' => 'Themes', 'route' => 'admin.themes.index', 'pattern' => 'admin.themes.*'],
         ['label' => 'Plugins', 'route' => 'admin.plugins.index', 'pattern' => 'admin.plugins.*'],
+        ['label' => 'Operations', 'route' => 'admin.operations.index', 'pattern' => 'admin.operations.*'],
         ['label' => 'Users', 'route' => 'admin.users.index', 'pattern' => 'admin.users.*'],
         ['label' => 'Settings', 'route' => 'admin.settings.index', 'pattern' => 'admin.settings.*'],
         ['label' => 'SEO', 'route' => 'admin.seo.index', 'pattern' => 'admin.seo.*'],

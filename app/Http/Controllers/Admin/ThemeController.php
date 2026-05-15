@@ -6,13 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\Setting;
 use App\Models\Theme;
+use App\Support\CmsCache;
 use App\Support\ThemeManager;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
 class ThemeController extends Controller
 {
-    public function __construct(private readonly ThemeManager $themeManager)
+    public function __construct(
+        private readonly ThemeManager $themeManager,
+        private readonly CmsCache $cache
+    )
     {
     }
 
@@ -31,6 +35,7 @@ class ThemeController extends Controller
         Setting::storeMany([
             ['group' => 'branding', 'key' => 'active_theme', 'value' => ['value' => $theme->slug], 'is_public' => true, 'autoload' => true],
         ]);
+        $this->cache->flushSettings();
 
         $this->themeManager->syncDiscoveredThemes();
         $this->themeManager->registerActiveThemeNamespace();

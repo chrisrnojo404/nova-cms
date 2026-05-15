@@ -67,6 +67,46 @@ Useful endpoints:
 
 Full API usage docs live in [docs/API.md](./docs/API.md).
 
+## Operations
+
+Nova CMS now includes an operations center at `/admin/operations` with:
+
+- queued backup snapshot dispatch
+- downloadable backup run history
+- CMS cache refresh actions
+- queue health visibility
+
+Operational commands:
+
+```bash
+php artisan nova:backup
+php artisan nova:backup --sync
+php artisan nova:backups:prune
+php artisan schedule:list
+```
+
+Restore workflow:
+
+- open `/admin/operations`
+- upload a Nova `.json` or `.zip` snapshot
+- confirm replacement
+- optionally create a safety backup first
+
+Scheduled jobs:
+
+- daily backup dispatch at `02:00`
+- backup pruning at `02:30`
+- failed job pruning at `03:00`
+
+For production, run a queue worker and a scheduler process:
+
+```bash
+php artisan queue:work
+php artisan schedule:work
+```
+
+Full production rollout guidance lives in [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md).
+
 ## Verification
 
 The current foundation has been verified with:

@@ -7,11 +7,16 @@ use App\Http\Requests\Admin\SettingsUpdateRequest;
 use App\Models\ActivityLog;
 use App\Models\Page;
 use App\Models\Setting;
+use App\Support\CmsCache;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
 class SettingController extends Controller
 {
+    public function __construct(private readonly CmsCache $cache)
+    {
+    }
+
     public function index(): View
     {
         $values = [];
@@ -46,6 +51,7 @@ class SettingController extends Controller
         }
 
         Setting::storeMany($payload);
+        $this->cache->flushSettings();
 
         ActivityLog::create([
             'user_id' => $request->user()->id,
@@ -87,6 +93,9 @@ class SettingController extends Controller
             'media' => [
                 ['key' => 'media_upload_directory', 'label' => 'Default upload directory', 'type' => 'text', 'default' => 'media/uploads', 'public' => false],
                 ['key' => 'image_quality', 'label' => 'Default image quality', 'type' => 'number', 'default' => 82, 'public' => false],
+            ],
+            'operations' => [
+                ['key' => 'backup_retention_days', 'label' => 'Backup retention (days)', 'type' => 'number', 'default' => 14, 'public' => false],
             ],
         ];
     }

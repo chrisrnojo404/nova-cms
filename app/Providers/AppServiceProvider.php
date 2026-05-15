@@ -6,6 +6,7 @@ use App\Models\ActivityLog;
 use App\Models\Menu;
 use App\Models\Setting;
 use App\Models\User;
+use App\Support\CmsCache;
 use App\Support\PluginManager;
 use App\Support\SeoManager;
 use App\Support\ThemeManager;
@@ -29,6 +30,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(ThemeManager::class, fn ($app) => new ThemeManager($app['view']));
         $this->app->singleton(PluginManager::class, fn ($app) => new PluginManager($app['view']));
         $this->app->singleton(SeoManager::class, fn () => new SeoManager());
+        $this->app->singleton(CmsCache::class, fn () => new CmsCache());
     }
 
     /**
@@ -42,13 +44,14 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->make(ThemeManager::class)->registerActiveThemeNamespace();
         $pluginManager = $this->app->make(PluginManager::class);
+        $cmsCache = $this->app->make(CmsCache::class);
         $pluginManager->registerDiscoveredPluginNamespaces();
         $pluginManager->syncDiscoveredPlugins();
         $pluginManager->registerActivePluginRoutes();
         $pluginManager->loadActivePluginBootstraps();
         $pluginManager->registerDefaultShortcodes();
 
-        View::composer(['welcome', 'pages.*', 'posts.*', 'theme::*'], function ($view): void {
+        View::composer(['welcome', 'pages.*', 'posts.*', 'theme::*'], function ($view) use ($cmsCache): void {
             $defaults = [
                 'site_name' => 'Nova CMS',
                 'site_tagline' => 'Commercial-ready Laravel CMS foundation',
@@ -66,50 +69,12 @@ class AppServiceProvider extends ServiceProvider
                 return;
             }
 
-            $siteSettings = Schema::hasTable('settings')
-                ? array_merge($defaults, [
-                    'site_name' => Setting::valueFor('site_name', $defaults['site_name']),
-                    'site_tagline' => Setting::valueFor('site_tagline', $defaults['site_tagline']),
-                    'brand_accent' => Setting::valueFor('brand_accent', $defaults['brand_accent']),
-                    'media_upload_directory' => Setting::valueFor('media_upload_directory', $defaults['media_upload_directory']),
-                ])
-                : $defaults;
-
-            $seoSettings = $this->app->make(SeoManager::class)->settings();
+            $siteSettings = $cmsCache->siteSettings($defaults);
+            $seoSettings = $cmsCache->seoSettings(fn (): array => $this->app->make(SeoManager::class)->settings());
 
             $view->with([
-                'headerMenu' => Menu::query()
-                    ->active()
-                    ->where('location', 'header')
-                    ->with([
-                        'rootItems' => fn ($query) => $query->with('children.children'),
-                        'rootItems.page',
-                        'rootItems.post',
-                        'rootItems.category',
-                        'rootItems.children.page',
-                        'rootItems.children.post',
-                        'rootItems.children.category',
-                        'rootItems.children.children.page',
-                        'rootItems.children.children.post',
-                        'rootItems.children.children.category',
-                    ])
-                    ->first(),
-                'footerMenu' => Menu::query()
-                    ->active()
-                    ->where('location', 'footer')
-                    ->with([
-                        'rootItems' => fn ($query) => $query->with('children.children'),
-                        'rootItems.page',
-                        'rootItems.post',
-                        'rootItems.category',
-                        'rootItems.children.page',
-                        'rootItems.children.post',
-                        'rootItems.children.category',
-                        'rootItems.children.children.page',
-                        'rootItems.children.children.post',
-                        'rootItems.children.children.category',
-                    ])
-                    ->first(),
+                'headerMenu' => $cmsCache->menu('header'),
+                'footerMenu' => $cmsCache->menu('footer'),
                 'siteSettings' => $siteSettings,
                 'seoSettings' => $seoSettings,
             ]);

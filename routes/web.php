@@ -3,15 +3,18 @@
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\BlockTemplateController as AdminBlockTemplateController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Admin\ActivityLogController as AdminActivityLogController;
 use App\Http\Controllers\Admin\PageController as AdminPageController;
 use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Admin\MediaController as AdminMediaController;
 use App\Http\Controllers\Admin\MenuController as AdminMenuController;
 use App\Http\Controllers\Admin\MenuItemController as AdminMenuItemController;
+use App\Http\Controllers\Admin\OperationsController as AdminOperationsController;
 use App\Http\Controllers\Admin\PluginController as AdminPluginController;
 use App\Http\Controllers\Admin\SeoController as AdminSeoController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Admin\ThemeController as AdminThemeController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProfileController;
@@ -90,10 +93,20 @@ Route::middleware(['auth', 'verified', 'panel.access'])
         Route::post('/plugins/{plugin}/activate', [AdminPluginController::class, 'activate'])->name('plugins.activate');
         Route::post('/plugins/{plugin}/deactivate', [AdminPluginController::class, 'deactivate'])->name('plugins.deactivate');
 
-        Route::view('/users', 'admin.placeholder', [
-            'title' => 'Users',
-            'description' => 'User management will build on the seeded roles and permissions foundation added in this phase.',
-        ])->name('users.index');
+        Route::get('/operations', [AdminOperationsController::class, 'index'])->name('operations.index');
+        Route::post('/operations/backups', [AdminOperationsController::class, 'queueBackup'])->name('operations.backups.queue');
+        Route::get('/operations/backups/{backupRun}/download', [AdminOperationsController::class, 'downloadBackup'])->name('operations.backups.download');
+        Route::post('/operations/backups/restore', [AdminOperationsController::class, 'restoreBackup'])->name('operations.backups.restore');
+        Route::post('/operations/caches/refresh', [AdminOperationsController::class, 'refreshCaches'])->name('operations.caches.refresh');
+
+        Route::middleware('permission:manage users')->group(function () {
+            Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+            Route::get('/users/create', [AdminUserController::class, 'create'])->name('users.create');
+            Route::post('/users', [AdminUserController::class, 'store'])->name('users.store');
+            Route::get('/users/{user}/edit', [AdminUserController::class, 'edit'])->name('users.edit');
+            Route::put('/users/{user}', [AdminUserController::class, 'update'])->name('users.update');
+            Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
+        });
 
         Route::get('/settings', [AdminSettingController::class, 'index'])->name('settings.index');
         Route::put('/settings', [AdminSettingController::class, 'update'])->name('settings.update');
@@ -101,10 +114,9 @@ Route::middleware(['auth', 'verified', 'panel.access'])
         Route::get('/seo', [AdminSeoController::class, 'index'])->name('seo.index');
         Route::put('/seo', [AdminSeoController::class, 'update'])->name('seo.update');
 
-        Route::view('/logs', 'admin.placeholder', [
-            'title' => 'Activity Logs',
-            'description' => 'Authentication and registration events are already tracked. A full audit viewer follows with the user module.',
-        ])->name('logs.index');
+        Route::get('/logs', [AdminActivityLogController::class, 'index'])
+            ->middleware('permission:view logs')
+            ->name('logs.index');
     });
 
 Route::middleware('auth')->group(function () {

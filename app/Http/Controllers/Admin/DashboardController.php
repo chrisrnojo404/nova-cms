@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
+use App\Models\BackupRun;
 use App\Models\Media;
 use App\Models\Menu;
 use App\Models\Page;
@@ -31,6 +32,7 @@ class DashboardController extends Controller
             ['label' => 'Open media library', 'route' => 'admin.media.index'],
             ['label' => 'Build navigation menus', 'route' => 'admin.menus.index'],
             ['label' => 'Manage plugins', 'route' => 'admin.plugins.index'],
+            ['label' => 'Open operations center', 'route' => 'admin.operations.index'],
             ['label' => 'Manage your profile', 'route' => 'profile.edit'],
         ];
 
@@ -43,6 +45,7 @@ class DashboardController extends Controller
                 ['label' => 'Menus', 'value' => Menu::count(), 'hint' => 'Navigation groups and placements'],
                 ['label' => 'Themes', 'value' => Theme::count(), 'hint' => 'Discoverable theme records'],
                 ['label' => 'Plugins', 'value' => Plugin::count(), 'hint' => 'Plugin registry entries'],
+                ['label' => 'Backups', 'value' => BackupRun::count(), 'hint' => 'Operational snapshot history'],
             ],
             'recentActivity' => ActivityLog::with('user')->latest()->limit(8)->get(),
             'quickActions' => $this->pluginManager->runHook('dashboard.quick-actions', $quickActions),

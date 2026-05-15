@@ -25,6 +25,7 @@ class SettingsUpdateRequest extends FormRequest
             'posts_per_page' => ['required', 'integer', 'min:1', 'max:24'],
             'media_upload_directory' => ['required', 'string', 'max:255', 'regex:/^[A-Za-z0-9\/\-_]+$/'],
             'image_quality' => ['required', 'integer', 'min:20', 'max:100'],
+            'backup_retention_days' => ['nullable', 'integer', 'min:1', 'max:365'],
         ];
     }
 }

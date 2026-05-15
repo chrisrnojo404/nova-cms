@@ -6,13 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\SeoSettingsUpdateRequest;
 use App\Models\ActivityLog;
 use App\Models\Setting;
+use App\Support\CmsCache;
 use App\Support\SeoManager;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
 class SeoController extends Controller
 {
-    public function __construct(private readonly SeoManager $seoManager)
+    public function __construct(
+        private readonly SeoManager $seoManager,
+        private readonly CmsCache $cache
+    )
     {
     }
 
@@ -37,6 +41,7 @@ class SeoController extends Controller
         ];
 
         Setting::storeMany($payload);
+        $this->cache->flushSeo();
 
         ActivityLog::create([
             'user_id' => $request->user()->id,

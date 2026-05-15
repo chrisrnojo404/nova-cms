@@ -10,11 +10,16 @@ use App\Models\Category;
 use App\Models\Menu;
 use App\Models\Page;
 use App\Models\Post;
+use App\Support\CmsCache;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
 class MenuController extends Controller
 {
+    public function __construct(private readonly CmsCache $cache)
+    {
+    }
+
     public function index(): View
     {
         return view('admin.menus.index', [
@@ -35,6 +40,7 @@ class MenuController extends Controller
     public function store(MenuStoreRequest $request): RedirectResponse
     {
         $menu = Menu::create($request->validated());
+        $this->cache->flushMenus();
 
         $this->logMenuActivity($request->user()->id, $menu, 'menu.created', 'Menu created.');
 
@@ -63,6 +69,7 @@ class MenuController extends Controller
     public function update(MenuUpdateRequest $request, Menu $menu): RedirectResponse
     {
         $menu->update($request->validated());
+        $this->cache->flushMenus();
 
         $this->logMenuActivity($request->user()->id, $menu, 'menu.updated', 'Menu updated.');
 
@@ -76,6 +83,7 @@ class MenuController extends Controller
         $userId = request()->user()?->id;
         $name = $menu->name;
         $menu->delete();
+        $this->cache->flushMenus();
 
         ActivityLog::create([
             'user_id' => $userId,
